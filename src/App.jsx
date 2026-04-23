@@ -9,24 +9,38 @@ import ContactUs from './components/ContactUs';
 const sampleElectionEvents = [
   {
     id: 1,
-    date: '2026-11-03',
-    title: 'General Election Day',
-    description: 'The main voting day for federal, state, and local representatives. Polls are typically open from 7 AM to 8 PM.',
-    type: 'Federal Election'
+    date: '2026-03-01',
+    title: 'Voter Roll Update',
+    description: 'Check your name in the Electoral Roll via the NVSP portal and ensure your EPIC details are correct.',
+    type: 'Preparation'
   },
   {
     id: 2,
-    date: '2026-10-05',
-    title: 'Voter Registration Deadline',
-    description: 'Last day to register to vote online, by mail, or in-person for the upcoming General Election.',
-    type: 'Deadline'
+    date: '2026-03-15',
+    title: 'Nomination Phase',
+    description: 'Candidates file their nominations and affidavits with the Returning Officer for scrutiny.',
+    type: 'Legal'
   },
   {
     id: 3,
-    date: '2026-10-15',
-    title: 'Early Voting Begins',
-    description: 'Registered voters can begin casting their ballots at designated early voting locations across the state.',
-    type: 'Voting Period'
+    date: '2026-04-01',
+    title: 'Campaigning Period',
+    description: 'Public rallies and manifestos. Campaigning strictly ends 48 hours before the start of polling.',
+    type: 'Campaign'
+  },
+  {
+    id: 4,
+    date: '2026-04-20',
+    title: 'Polling Day',
+    description: 'Cast your vote using EVM and verify with VVPAT at your designated polling booth.',
+    type: 'Election'
+  },
+  {
+    id: 5,
+    date: '2026-05-15',
+    title: 'Counting Day',
+    description: 'Votes are counted across all constituencies and the Election Commission declares the official results.',
+    type: 'Results'
   }
 ];
 

@@ -51,7 +51,22 @@ export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-fla
     throw new Error('Input is empty or invalid after sanitization.');
   }
 
-  const model = genAI.getGenerativeModel({ model: modelName });
+  // 1. Capture the exact live date and time when the user hits 'Send'
+  const currentDateTime = new Date().toLocaleString('en-IN', { 
+    timeZone: 'Asia/Kolkata',
+    dateStyle: 'full', 
+    timeStyle: 'long' 
+  });
+
+  // 2. Inject it dynamically and ENABLE GOOGLE SEARCH
+  const model = genAI.getGenerativeModel({ 
+    model: modelName,
+    systemInstruction: `You are a strictly non-partisan, highly accessible civic assistant specializing in the Indian electoral process. Educate users based on Election Commission of India (ECI) guidelines. 
+    CRITICAL TIME AWARENESS: The user's current live date and time is ${currentDateTime}. Use your Google Search tool to fetch the absolute latest news, facts, and live election updates whenever a user asks about current events, today's news, or 2026 elections. Do not hallucinate past dates.`,
+    tools: [
+      { googleSearch: {} } // <-- This single line gives the AI full internet access
+    ]
+  });
   const maxRetries = 3;
 
   for (let i = 0; i < maxRetries; i++) {
