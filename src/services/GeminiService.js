@@ -38,10 +38,10 @@ export const sanitizeInput = (input) => {
  * Implements robust error handling to gracefully degrade if the API fails.
  * 
  * @param {string} prompt - The user's query
- * @param {string} modelName - The Gemini model to use (defaults to 'gemini-3.1-flash-lite')
+ * @param {string} modelName - The Gemini model to use (defaults to 'gemini-2.5-flash')
  * @returns {Promise<string>} The model's response text
  */
-export const generateGeminiResponse = async (prompt, modelName = 'gemini-3.1-flash-lite') => {
+export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-flash') => {
   if (!API_KEY || !genAI) {
     throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your .env file.');
   }
