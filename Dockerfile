@@ -13,10 +13,6 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
-# Add these lines BEFORE npm run build
-ARG VITE_GEMINI_API_KEY
-ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
-
 # Build the application for production
 RUN npm run build
 
