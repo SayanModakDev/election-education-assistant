@@ -13,6 +13,8 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
+# Force fresh build for API key
+
 # Build the application for production
 RUN npm run build
 
