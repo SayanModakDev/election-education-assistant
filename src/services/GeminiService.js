@@ -33,9 +33,13 @@ export const sanitizeInput = (input) => {
   return sanitized;
 };
 
+// In-memory cache to avoid redundant API calls for repeated questions
+const promptCache = new Map();
+
 /**
  * Sends a sanitized prompt to the Gemini model and retrieves the response.
  * Implements robust error handling to gracefully degrade if the API fails.
+ * Returns cached responses for previously asked questions.
  * 
  * @param {string} prompt - The user's query
  * @param {string} modelName - The Gemini model to use (defaults to 'gemini-2.5-flash-lite')
@@ -58,14 +62,29 @@ export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-fla
     timeStyle: 'long' 
   });
 
-  // 2. Inject it dynamically and ENABLE GOOGLE SEARCH
+  // 2. Check cache before making an API call
+  if (promptCache.has(sanitizedPrompt)) {
+    return promptCache.get(sanitizedPrompt);
+  }
+
+  // 3. Inject time awareness, search grounding, generation tuning, and safety settings
   const model = genAI.getGenerativeModel({ 
     model: modelName,
     systemInstruction: `You are a strictly non-partisan, highly accessible civic assistant specializing in the Indian electoral process. Educate users based on Election Commission of India (ECI) guidelines. 
     CRITICAL TIME AWARENESS: The user's current live date and time is ${currentDateTime}. Use your Google Search tool to fetch the absolute latest news, facts, and live election updates whenever a user asks about current events, today's news, or 2026 elections. Do not hallucinate past dates.`,
     tools: [
       { googleSearch: {} } // <-- This single line gives the AI full internet access
-    ]
+    ],
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 800,
+    },
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    ],
   });
   const maxRetries = 3;
 
@@ -74,8 +93,11 @@ export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-fla
       // Call the API
       const result = await model.generateContent(sanitizedPrompt);
       const response = await result.response;
+      const text = response.text();
 
-      return response.text();
+      // Cache the successful response for future identical queries
+      promptCache.set(sanitizedPrompt, text);
+      return text;
     } catch (error) {
       const isLastAttempt = i === maxRetries - 1;
       const errorMessage = error.message || '';
