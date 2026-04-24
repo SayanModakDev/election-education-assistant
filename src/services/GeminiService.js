@@ -51,7 +51,7 @@ const promptCache = new Map();
  */
 export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-flash-lite') => {
   if (!API_KEY || !genAI) {
-    throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your .env file.');
+    throw new Error('Gemini API key is not configured. Please inject VITE_API_KEY into sessionStorage or your environment.');
   }
 
   const sanitizedPrompt = sanitizeInput(prompt);
