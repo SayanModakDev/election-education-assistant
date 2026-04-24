@@ -1,9 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize the API
-// We check window.ENV first to allow dynamic runtime configuration on Cloud Run
-// Fallback to import.meta.env for local development
-const API_KEY = (window.ENV && window.ENV.VITE_API_KEY) || import.meta.env.VITE_API_KEY || '';
+// Priority 1: Cloud Run Runtime (window.ENV)
+// Priority 2: Volatile Browser Memory (sessionStorage) - Best for secure local testing
+// Priority 3: Build-time environment variables (import.meta.env)
+const API_KEY = (window.ENV && window.ENV.VITE_API_KEY) || 
+                sessionStorage.getItem('VITE_API_KEY') || 
+                import.meta.env.VITE_API_KEY || '';
 
 let genAI = null;
 if (API_KEY) {
@@ -57,10 +60,10 @@ export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-fla
   }
 
   // 1. Capture the exact live date and time when the user hits 'Send'
-  const currentDateTime = new Date().toLocaleString('en-IN', { 
+  const currentDateTime = new Date().toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
-    dateStyle: 'full', 
-    timeStyle: 'long' 
+    dateStyle: 'full',
+    timeStyle: 'long'
   });
 
   // 2. Check cache before making an API call
@@ -69,10 +72,24 @@ export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-fla
   }
 
   // 3. Inject time awareness, search grounding, generation tuning, and safety settings
-  const model = genAI.getGenerativeModel({ 
+  const model = genAI.getGenerativeModel({
     model: modelName,
     systemInstruction: `You are a strictly non-partisan, highly accessible civic assistant specializing in the Indian electoral process. Educate users based on Election Commission of India (ECI) guidelines. 
-    CRITICAL TIME AWARENESS: The user's current live date and time is ${currentDateTime}. Use your Google Search tool to fetch the absolute latest news, facts, and live election updates whenever a user asks about current events, today's news, or 2026 elections. Do not hallucinate past dates.`,
+    CRITICAL TIME AWARENESS: The user's current live date and time is ${currentDateTime}. Use your Google Search tool to fetch the absolute latest news, facts, and live election updates whenever a user asks about current events, today's news, or 2026 elections. Do not hallucinate past dates.
+    
+    OUTPUT STRATEGY (MANDATORY):
+    All responses MUST follow this exact structure:
+    1. Quick Overview (2-3 lines)
+    2. Step-by-Step Explanation (numbered)
+    3. Example (real-world or scenario)
+    4. Key Takeaway (1-2 lines)
+    5. Next Best Action (guidance for improvement or exploration)
+    
+    RESPONSE RULES:
+    - Be strictly neutral (no political bias). If asked about political preferences, respond with neutral evaluation guidance.
+    - Use simple, clean language. Avoid long paragraphs.
+    - Keep responses between 120-180 words.
+    - For processes/timelines, always use a guided, step-by-step flow.`,
     tools: [
       { googleSearch: {} } // <-- This single line gives the AI full internet access
     ],
