@@ -1,5 +1,5 @@
 // Mock the import.meta.env before importing the service to prevent Vite ESM errors in Jest
-global.import = { meta: { env: { API_KEY: 'test_mock_key' } } };
+global.import = { meta: { env: { VITE_API_KEY: 'test_mock_key' } } };
 
 import { generateGeminiResponse, sanitizeInput } from '../services/GeminiService';
 import { GoogleGenerativeAI } from '@google/generative-ai';

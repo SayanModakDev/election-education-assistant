@@ -34,32 +34,25 @@ This project leverages a cutting-edge, lightweight stack optimized for speed and
 
 You can run this project locally either through standard Node.js or via Docker.
 
-### Prerequisites
-1. Create a `.env` file in the root directory (Note: This file is ignored by git).
-2. Add your Google Gemini API key:
-   ```env
-   API_KEY=your_api_key_here
-   ```
+### How to Manage Your API Key in Google Cloud Run
+This project is configured for **Runtime Environment Injection**. This means you don't need to bake your API key into the image.
 
-### Method 1: Using Node.js (Development Mode)
-1. Install the dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-3. Open `http://localhost:5173` in your browser.
+1. **In the Cloud Console**: Go to your Cloud Run service -> **Edit & Deploy New Revision**.
+2. **Variables**: Under the "Variables & Secrets" tab, add an Environment Variable:
+   - **Name**: `VITE_API_KEY`
+   - **Value**: `your_actual_gemini_key`
+3. **Deploy**: Click Deploy. The app will automatically pick up the new key without a rebuild!
 
-### Method 2: Using Docker (Production Simulation)
-To test exactly how the app will behave when deployed to Google Cloud Run:
-1. Build the multi-stage Docker image, passing your key as a build argument:
-   ```bash
-   docker build --build-arg API_KEY=your_key_here -t election-app .
-   ```
-2. Run the container, binding port 8080:
-   ```bash
-   docker run -p 8080:8080 election-app
-   ```
+### Local Development
+To run locally, you can still use a `.env` file:
+```env
+VITE_API_KEY=your_key_here
+```
+
+### Local Docker Test
+To test the production behavior locally:
+```bash
+docker build -t election-app .
+docker run -p 8080:8080 -e VITE_API_KEY=your_key_here election-app
+```
 3. Open `http://localhost:8080` in your browser.

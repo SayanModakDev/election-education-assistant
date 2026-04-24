@@ -13,10 +13,6 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
-# Add build arguments for the API key
-ARG API_KEY
-ENV API_KEY=$API_KEY
-
 # Build the application for production
 RUN npm run build
 
@@ -32,8 +28,12 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the built artifacts from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Copy the entrypoint script and make it executable
+COPY entrypoint.sh /usr/share/nginx/entrypoint.sh
+RUN chmod +x /usr/share/nginx/entrypoint.sh
+
 # Expose port 8080 as required by Google Cloud Run
 EXPOSE 8080
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Use the entrypoint script to start Nginx and inject environment variables
+CMD ["/usr/share/nginx/entrypoint.sh"]
