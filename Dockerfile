@@ -13,7 +13,9 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
-# Force fresh build for API key
+# Add build arguments for the API key
+ARG API_KEY
+ENV API_KEY=$API_KEY
 
 # Build the application for production
 RUN npm run build

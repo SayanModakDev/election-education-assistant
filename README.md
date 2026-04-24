@@ -35,10 +35,10 @@ This project leverages a cutting-edge, lightweight stack optimized for speed and
 You can run this project locally either through standard Node.js or via Docker.
 
 ### Prerequisites
-1. Create a `.env` file in the root directory.
+1. Create a `.env` file in the root directory (Note: This file is ignored by git).
 2. Add your Google Gemini API key:
    ```env
-   VITE_GEMINI_API_KEY=your_api_key_here
+   API_KEY=your_api_key_here
    ```
 
 ### Method 1: Using Node.js (Development Mode)
@@ -54,9 +54,9 @@ You can run this project locally either through standard Node.js or via Docker.
 
 ### Method 2: Using Docker (Production Simulation)
 To test exactly how the app will behave when deployed to Google Cloud Run:
-1. Build the multi-stage Docker image:
+1. Build the multi-stage Docker image, passing your key as a build argument:
    ```bash
-   docker build -t election-app .
+   docker build --build-arg API_KEY=your_key_here -t election-app .
    ```
 2. Run the container, binding port 8080:
    ```bash

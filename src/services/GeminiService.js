@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize the API using the Vite environment variable
 // Fallback to empty string to prevent immediate crash if env var is missing during setup
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const API_KEY = import.meta.env.API_KEY || '';
 
 let genAI = null;
 if (API_KEY) {
