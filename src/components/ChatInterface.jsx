@@ -66,9 +66,21 @@ const ChatInterface = React.memo(() => {
   return (
     <div className="flex flex-col h-[600px] w-full max-w-4xl mx-auto bg-white rounded-md shadow-md border border-slate-200 overflow-hidden my-8">
       {/* Chat Header */}
-      <div className="bg-[#0b2b5e] text-white px-6 py-4 border-b-4 border-[#c02a2a]">
-        <h2 className="text-xl font-bold">Election Assistant AI</h2>
-        <p className="text-sm text-blue-200">Ask questions about voting, registration, or your rights.</p>
+      <div className="bg-[#0b2b5e] text-white px-6 py-4 border-b-4 border-[#c02a2a] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-xl font-bold">Election Assistant AI</h2>
+          <p className="text-sm text-blue-200">Ask questions about voting, registration, or your rights.</p>
+        </div>
+        <a 
+          href="https://voters.eci.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md border border-white/30 transition-colors flex items-center gap-2 font-semibold"
+          aria-label="Verify information on the official Election Commission of India portal (opens in new tab)"
+        >
+          <span>Verify with ECI Portal</span>
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+        </a>
       </div>
 
       {/* Chat History Area */}

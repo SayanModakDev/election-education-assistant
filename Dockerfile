@@ -1,39 +1,36 @@
 # Stage 1: Build the Vite React App
 FROM node:20-alpine AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package files first to leverage Docker layer caching for npm install
+# Copy package files first for caching
 COPY package.json package-lock.json* ./
-
-# Install dependencies using clean install for reproducible builds
 RUN npm ci
 
-# Copy the rest of the application code
+# Copy code and build
 COPY . .
-
-# Build the application for production
 RUN npm run build
 
-# Stage 2: Serve the app with Nginx (Minimal Footprint)
-FROM nginx:alpine
+# Stage 2: Serve the app with Node.js Backend Proxy
+FROM node:20-alpine
 
-# Remove default nginx static assets to keep it clean
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-# Copy the custom Nginx configuration optimized for Cloud Run and SPAs
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install only production dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev
 
-# Copy the built artifacts from the builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy built frontend assets from builder
+COPY --from=builder /app/dist ./dist
 
-# Copy the entrypoint script and make it executable
-COPY entrypoint.sh /usr/share/nginx/entrypoint.sh
-RUN chmod +x /usr/share/nginx/entrypoint.sh
+# Copy the backend server code
+COPY server.js ./
 
 # Expose port 8080 as required by Google Cloud Run
 EXPOSE 8080
 
-# Use the entrypoint script to start Nginx and inject environment variables
-CMD ["/usr/share/nginx/entrypoint.sh"]
+# Environment variables will be injected by Cloud Run at runtime
+# GCP_PROJECT_ID is provided by the environment
+
+# Start the unified backend + frontend server
+CMD ["node", "server.js"]
