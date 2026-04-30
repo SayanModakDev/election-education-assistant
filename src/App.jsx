@@ -77,7 +77,7 @@ function App() {
               </p>
               <button
                 onClick={() => {
-                  document.getElementById('chat-section')?.scrollIntoView({ behavior: 'smooth' });
+                  document.getElementById('timeline-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 className="bg-[#c02a2a] hover:bg-[#a02222] text-white font-bold py-3 px-6 rounded-md transition-colors focus:outline-none focus:ring-4 focus:ring-[#c02a2a] focus:ring-offset-2 shadow-sm"
                 aria-label="Start learning about the electoral process"
