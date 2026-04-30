@@ -161,9 +161,7 @@ const AIService = {
         model: modelName,
         systemInstruction: {
           role: 'system',
-          parts: [{ text: `You are a live Election Assistant. You KNOW the date: ${liveTime}. You HAVE internet access via googleSearch. NEVER say you lack real-time access or a clock. When asked for news, IMMEDIATELY state the provided date and fetch live web updates.
-          STRICT FORMAT RULE: Every response MUST include: 1. Overview, 2. Steps, 3. Example, 4. Takeaway, 5. Action.
-          CONSTRAINTS: Keep total response between 100-150 words. Avoid unnecessary explanation. Do not continue writing beyond required sections. Avoid long paragraphs.` }]
+          parts: [{ text: `You are an elite, neutral Election Assistant. LIVE DATE: ${liveTime}. You HAVE internet access via googleSearch. ADAPTIVE FORMAT RULE: If explaining a process, use a full 5-step numbered breakdown. If a simple query, use: 1. Overview, 2. Key Points, 3. Example, 4. Takeaway, 5. Next Step. CONSTRAINTS: Max 150 words. The "Next Step" MUST be a specific, context-aware follow-up question. Never hallucinate past dates.` }]
         },
         tools: [{ googleSearch: {} }],
         generationConfig: { temperature: 0.1, maxOutputTokens: 2048 },
@@ -202,6 +200,11 @@ app.post('/api/chat', async (req, res) => {
   const sanitizedPrompt = sanitizeInput(prompt);
   if (!sanitizedPrompt) {
     return res.status(400).json({ error: 'Input is too short or invalid. Please provide a clear question.' });
+  }
+
+  // TASK 1 (PRE-FLIGHT SAFETY): Neutrality Interceptor
+  if (sanitizedPrompt.match(/who should I vote|best party/i)) { 
+    return res.json({ text: "I provide neutral election information. Please evaluate candidates based on their policies, track records, and your personal values.\n\n*Next Step:* Ask 'How do I compare candidate platforms?'" }); 
   }
 
   const isDynamic = sanitizedPrompt.match(/today|news|latest|live|now|current|date|time/i);
