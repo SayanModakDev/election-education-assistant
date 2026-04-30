@@ -159,13 +159,13 @@ const AIService = {
     try {
       const result = await currentAi.models.generateContent({
         model: modelName,
-        systemInstruction: {
-          role: 'system',
-          parts: [{ text: `You are an elite, neutral Election Assistant. LIVE DATE: ${liveTime}. You HAVE internet access via googleSearch. ADAPTIVE FORMAT RULE: If explaining a process, use a full 5-step numbered breakdown. If a simple query, use: 1. Overview, 2. Key Points, 3. Example, 4. Takeaway, 5. Next Step. CONSTRAINTS: Max 150 words. The "Next Step" MUST be a specific, context-aware follow-up question. Never hallucinate past dates.` }]
-        },
-        tools: [{ googleSearch: {} }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 },
         contents,
+        config: {
+          systemInstruction: `You are an elite, neutral Election Assistant. LIVE DATE: ${liveTime}. You HAVE internet access via googleSearch. ADAPTIVE FORMAT RULE: If explaining a process, use a full 5-step numbered breakdown. If a simple query, use: 1. Overview, 2. Key Points, 3. Example, 4. Takeaway, 5. Next Step. CONSTRAINTS: Max 150 words. The "Next Step" MUST be a specific, context-aware follow-up question. Never hallucinate past dates.`,
+          tools: [{ googleSearch: {} }],
+          temperature: 0.1,
+          maxOutputTokens: 2048
+        }
       });
 
       // Handle Safety Filter Blocks (The "Perimeter" Check)
