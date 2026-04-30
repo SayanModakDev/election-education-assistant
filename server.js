@@ -10,7 +10,7 @@ import admin from 'firebase-admin';
 import { Logging } from '@google-cloud/logging';
 import { Storage } from '@google-cloud/storage';
 
-admin.initializeApp();
+admin.initializeApp({ projectId: process.env.GCP_PROJECT_ID || 'election-edu-assistant' });
 const db = admin.firestore();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -103,19 +103,15 @@ const CloudService = {
       prompt: prompt.substring(0, 500)
     };
 
-    return Promise.allSettled([
-      db.collection('conversations').add({
-        query: prompt,
-        response: responseText,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        model: modelName
-      }),
+    const results = await Promise.allSettled([
+      db.collection('conversations').add({ query: prompt, response: responseText, timestamp: admin.firestore.FieldValue.serverTimestamp(), model: modelName }),
       log.write(log.entry({ resource: { type: 'global' }, severity: 'INFO' }, logData)),
-      storage.bucket(`${projectId}-logs`).file(`audit/${interactionId}.json`).save(
-        JSON.stringify(logData, null, 2),
-        { contentType: 'application/json', resumable: false }
-      ).catch(() => { })
+      storage.bucket(`${projectId}-logs`).file(`audit/${interactionId}.json`).save(JSON.stringify(logData, null, 2), { contentType: 'application/json' })
     ]);
+    results.forEach((res, i) => {
+      if (res.status === 'rejected') console.error(`[CLOUD ERROR TASK ${i}]`, res.reason);
+    });
+    return results;
   },
 
   /**
