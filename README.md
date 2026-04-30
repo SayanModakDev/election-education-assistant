@@ -17,6 +17,16 @@ This project was developed as a submission for **PromptWars Challenge 2**, empha
 
 ---
 
+## Guiding Principles: AI Real-Time Awareness
+
+The AI Assistant is governed by a strict **Real-Time Awareness Rule** to ensure data integrity and user trust:
+
+1.  **Current Date Usage**: Always utilize the current system date (**April 30, 2026**) when answering time-sensitive queries.
+2.  **No Guessing**: If specific real-time data (e.g., live voter turnout or changing polling status) is unavailable or uncertain, the AI will **not** speculate.
+3.  **Transparency**: When data is unavailable, the AI will explicitly state: *"I don’t have real-time access to this specific information."* instead of providing potentially outdated or incorrect data.
+
+---
+
 ## Tech Stack
 
 This project leverages a cutting-edge, lightweight stack optimized for speed and developer experience:
