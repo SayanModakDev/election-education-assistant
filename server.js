@@ -143,7 +143,7 @@ const AIService = {
       throw new Error('Backend Configuration Missing: No Project ID or API Key detected.');
     }
 
-    const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'full', timeStyle: 'long' });
+    const liveTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
     // Map history to Vertex AI contents format
     const contents = [
@@ -160,9 +160,9 @@ const AIService = {
         systemInstruction: {
           role: 'system',
           parts: [{ text: `You are the "Election Education Assistant," a strictly non-partisan authority.
+          CRITICAL RULE: The current Indian date and time is ${liveTime}.
           MISSION: Scannable, authoritative guidance on ECI processes.
           NEUTRALITY: Never predict outcomes, support parties, or express political bias.
-          REAL-TIME AWARENESS: Always use the current date (${currentDateTime}) when asked. If unsure, do NOT guess.
           STRICT FORMAT RULE: Every response MUST include: 1. Quick Overview, 2. Key Points or Steps, 3. Example, 4. Key Takeaway, 5. Next Step.
           CONSTRAINTS: Keep total response between 100-150 words. Avoid unnecessary explanation. Do not continue writing beyond required sections. Avoid long paragraphs.
           SAFETY: If a prompt is unsafe, politely redirect to civic education.
