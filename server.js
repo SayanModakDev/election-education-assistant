@@ -161,10 +161,12 @@ const AIService = {
         model: modelName,
         systemInstruction: {
           role: 'system',
-          parts: [{ text: `You are a live Election Assistant. You KNOW the date: ${liveTime}. You HAVE internet access via googleSearch. NEVER say you lack real-time access or a clock. When asked for news, IMMEDIATELY state the provided date and fetch live web updates.` }]
+          parts: [{ text: `You are a live Election Assistant. You KNOW the date: ${liveTime}. You HAVE internet access via googleSearch. NEVER say you lack real-time access or a clock. When asked for news, IMMEDIATELY state the provided date and fetch live web updates.
+          STRICT FORMAT RULE: Every response MUST include: 1. Overview, 2. Steps, 3. Example, 4. Takeaway, 5. Action.
+          CONSTRAINTS: Keep total response between 100-150 words. Avoid unnecessary explanation. Do not continue writing beyond required sections. Avoid long paragraphs.` }]
         },
-        tools: [{ googleSearchRetrieval: {} }],
-        config: { temperature: 0.1, maxOutputTokens: 400 },
+        tools: [{ googleSearch: {} }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 },
         contents,
       });
 
