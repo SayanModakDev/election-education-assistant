@@ -86,16 +86,19 @@ function App() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
-              <div id="chat-section" className="scroll-mt-8">
+            <div className="flex flex-col gap-12 items-stretch mb-8">
+              <div id="timeline-section" className="scroll-mt-24">
+                <h2 className="text-3xl font-extrabold text-[#0b2b5e] mb-6 border-b-2 border-slate-200 pb-2">
+                  Election Timeline
+                </h2>
+                <TimelineVisualizer events={sampleElectionEvents} />
+              </div>
+
+              <div id="chat-section" className="scroll-mt-24">
                 <h2 className="text-3xl font-extrabold text-[#0b2b5e] mb-6 border-b-2 border-slate-200 pb-2">
                   Ask the Assistant
                 </h2>
                 <ChatInterface />
-              </div>
-
-              <div id="timeline-section" className="scroll-mt-8">
-                <TimelineVisualizer events={sampleElectionEvents} />
               </div>
             </div>
           </>
