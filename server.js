@@ -100,8 +100,7 @@ const CloudService = {
       modelName,
       promptLength: prompt.length,
       responseLength: responseText.length,
-      prompt: prompt.substring(0, 500),
-      response: responseText.substring(0, 500)
+      prompt: prompt.substring(0, 500)
     };
 
     return Promise.allSettled([
