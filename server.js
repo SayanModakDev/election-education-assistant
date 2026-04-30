@@ -47,15 +47,15 @@ app.get('/health', (_req, res) => res.status(200).json({ status: 'healthy', time
 const currentProjectId = process.env.GCP_PROJECT_ID || 'election-edu-assistant';
 const hasValidProject = !!currentProjectId;
 
-const aiConfig = hasValidProject 
-  ? { 
-      vertexai: true, 
-      project: currentProjectId, 
-      location: process.env.GCP_LOCATION || "us-central1" 
-    }
-  : { 
-      apiKey: process.env.VITE_API_KEY 
-    };
+const aiConfig = hasValidProject
+  ? {
+    vertexai: true,
+    project: currentProjectId,
+    location: process.env.GCP_LOCATION || "us-central1"
+  }
+  : {
+    apiKey: process.env.VITE_API_KEY
+  };
 
 const ai = new GoogleGenAI(aiConfig);
 console.log(`[BOOT] AI Provider: ${hasValidProject ? 'Vertex AI (Enterprise)' : 'Gemini API (Developer/Volatile)'}`);
@@ -69,16 +69,16 @@ const responseCache = new Map();
  */
 const sanitizeInput = (input) => {
   if (typeof input !== 'string') return '';
-  
+
   // 1. Neutralize HTML/Script tags
   let sanitized = input.replace(/<[^>]*>?/gm, '').trim();
-  
+
   // 2. Protect against common injection patterns
   const injectionPatterns = [/javascript:/i, /data:/i, /base64/i, /UNION SELECT/i];
   if (injectionPatterns.some(p => p.test(sanitized))) return null;
 
   // 3. Length validation
-  if (sanitized.length < 3) return null; 
+  if (sanitized.length < 3) return null;
   return sanitized.length > 1500 ? sanitized.substring(0, 1500) : sanitized;
 };
 
@@ -100,7 +100,7 @@ const CloudService = {
       modelName,
       promptLength: prompt.length,
       responseLength: responseText.length,
-      prompt: prompt.substring(0, 500), 
+      prompt: prompt.substring(0, 500),
       response: responseText.substring(0, 500)
     };
 
@@ -115,7 +115,7 @@ const CloudService = {
       storage.bucket(`${projectId}-logs`).file(`audit/${interactionId}.json`).save(
         JSON.stringify(logData, null, 2),
         { contentType: 'application/json', resumable: false }
-      ).catch(() => {})
+      ).catch(() => { })
     ]);
   },
 
@@ -145,7 +145,10 @@ const AIService = {
       throw new Error('Backend Configuration Missing: No Project ID or API Key detected.');
     }
 
-    const liveTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000; // +5:30 in milliseconds
+    const istDate = new Date(now.getTime() + istOffset);
+    const liveTime = istDate.toUTCString().replace('GMT', 'IST');
 
     // Map history to Vertex AI contents format
     const contents = [
@@ -161,7 +164,7 @@ const AIService = {
         model: modelName,
         contents,
         config: {
-          systemInstruction: `You are an elite, neutral Election Assistant. LIVE DATE: ${liveTime}. You HAVE internet access via googleSearch. ADAPTIVE FORMAT RULE: If explaining a process, use a full 5-step numbered breakdown. If a simple query, use: 1. Overview, 2. Key Points, 3. Example, 4. Takeaway, 5. Next Step. CONSTRAINTS: Max 150 words. The "Next Step" MUST be a specific, context-aware follow-up question. Never hallucinate past dates.`,
+          systemInstruction: `You are an elite Indian Election Assistant. LIVE CLOCK: ${liveTime}. CRITICAL RULE: If asked for the time or date, DO NOT use googleSearch. You must output the LIVE CLOCK directly. For news, you MUST use googleSearch. ADAPTIVE FORMAT: Process = 5 steps. Simple = Overview, Key Points, Example, Takeaway, Next Step. Max 150 words.`,
           tools: [{ googleSearch: {} }],
           temperature: 0.1,
           maxOutputTokens: 2048
@@ -170,8 +173,8 @@ const AIService = {
 
       // Handle Safety Filter Blocks (The "Perimeter" Check)
       if (!result.text && result.candidates?.[0]?.finishReason === 'SAFETY') {
-        return { 
-          text: "I prioritize neutral, civic education. For safety and neutrality reasons, I cannot fulfill this specific request. Please ask about voting registration, ID requirements, or polling processes." 
+        return {
+          text: "I prioritize neutral, civic education. For safety and neutrality reasons, I cannot fulfill this specific request. Please ask about voting registration, ID requirements, or polling processes."
         };
       }
 
@@ -203,8 +206,8 @@ app.post('/api/chat', async (req, res) => {
   }
 
   // TASK 1 (PRE-FLIGHT SAFETY): Neutrality Interceptor
-  if (sanitizedPrompt.match(/who should I vote|best party/i)) { 
-    return res.json({ text: "I provide neutral election information. Please evaluate candidates based on their policies, track records, and your personal values.\n\n*Next Step:* Ask 'How do I compare candidate platforms?'" }); 
+  if (sanitizedPrompt.match(/who should I vote|best party/i)) {
+    return res.json({ text: "I provide neutral election information. Please evaluate candidates based on their policies, track records, and your personal values.\n\n*Next Step:* Ask 'How do I compare candidate platforms?'" });
   }
 
   const isDynamic = sanitizedPrompt.match(/today|news|latest|live|now|current|date|time/i);
@@ -219,7 +222,7 @@ app.post('/api/chat', async (req, res) => {
     const effectiveHistory = isDynamic ? [] : history;
     const response = await AIService.generate(sanitizedPrompt, effectiveHistory, modelName, injectedKey);
     const text = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "Response unavailable.";
-    
+
     // 3. Efficiency Layer (Cache Population)
     if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
     responseCache.set(sanitizedPrompt, text);
@@ -231,13 +234,13 @@ app.post('/api/chat', async (req, res) => {
   } catch (error) {
     console.error('--- REQUEST ERROR ---');
     console.error(error);
-    
+
     const errorDetails = error.message || 'Unknown Execution Error';
     CloudService.logError(error, errorDetails);
 
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate a response from the AI.',
-      details: errorDetails 
+      details: errorDetails
     });
   }
 });
