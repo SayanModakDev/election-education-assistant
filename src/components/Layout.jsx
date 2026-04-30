@@ -42,9 +42,9 @@ const Layout = ({ children, setPage }) => {
                 <li>
                   <a
                     href="#"
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      setPage('home'); 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage('home');
                       setTimeout(() => document.getElementById('timeline-section')?.scrollIntoView({ behavior: 'smooth' }), 50);
                     }}
                     className="hover:bg-white/10 px-4 py-3 rounded-md text-base font-semibold transition-colors focus:outline-none focus:ring-4 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#0b2b5e]"
@@ -56,9 +56,9 @@ const Layout = ({ children, setPage }) => {
                 <li>
                   <a
                     href="#"
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      setPage('home'); 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage('home');
                       setTimeout(() => document.getElementById('chat-section')?.scrollIntoView({ behavior: 'smooth' }), 50);
                     }}
                     className="hover:bg-white/10 px-4 py-3 rounded-md text-base font-semibold transition-colors focus:outline-none focus:ring-4 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#0b2b5e]"
