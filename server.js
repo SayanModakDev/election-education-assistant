@@ -236,7 +236,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // 4. Cloud Layer (Background Archival - Delegated to CloudService)
-    CloudService.persist(sanitizedPrompt, text, modelName);
+    await CloudService.persist(sanitizedPrompt, text, modelName);
 
     res.json({ text });
   } catch (error) {
