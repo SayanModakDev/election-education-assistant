@@ -160,7 +160,7 @@ const AIService = {
           
           VERIFIED BADGE: End every response with the following string on a new line: "📌 *Source: Verified ECI Civic Guidelines*" ` }]
         },
-        tools: [{ googleSearch: {} }],
+        tools: [{ googleSearchRetrieval: {} }],
         config: { temperature: 0.1, maxOutputTokens: 400 },
         contents: [{ role: "user", parts: [{ text: sanitizedPrompt }] }],
       });
@@ -199,7 +199,8 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Input is too short or invalid. Please provide a clear question.' });
   }
 
-  if (responseCache.has(sanitizedPrompt)) {
+  const isDynamic = sanitizedPrompt.match(/today|news|latest|time/i);
+  if (responseCache.has(sanitizedPrompt) && !isDynamic) {
     console.log(`[CACHE] Hit: Serving response for "${sanitizedPrompt.substring(0, 20)}..."`);
     return res.json({ text: responseCache.get(sanitizedPrompt) });
   }
