@@ -210,10 +210,16 @@ app.post('/api/chat', async (req, res) => {
     return res.json({ text: "I provide neutral election information. Please evaluate candidates based on their policies, track records, and your personal values.\n\n*Next Step:* Ask 'How do I compare candidate platforms?'" });
   }
 
-  const isDynamic = sanitizedPrompt.match(/today|news|latest|live|now|current|date|time/i);
-  if (responseCache.has(sanitizedPrompt) && !isDynamic) {
-    console.log(`[CACHE] Hit: Serving response for "${sanitizedPrompt.substring(0, 20)}..."`);
-    return res.json({ text: responseCache.get(sanitizedPrompt) });
+  const isDynamic = sanitizedPrompt.match(/today|news|latest|live|now|current|date|time|update|status|winning|leading/i);
+  if (responseCache.has(sanitizedPrompt)) {
+    const cached = responseCache.get(sanitizedPrompt);
+    const isExpired = (Date.now() - cached.timestamp) > 60000; // 60 seconds TTL
+    if (!isExpired && !isDynamic) {
+      console.log(`[CACHE] Hit: Serving response for "${sanitizedPrompt.substring(0, 20)}..."`);
+      return res.json({ text: cached.text });
+    } else {
+      responseCache.delete(sanitizedPrompt); // Destroy stale or dynamic cache
+    }
   }
 
   try {
@@ -223,9 +229,11 @@ app.post('/api/chat', async (req, res) => {
     const response = await AIService.generate(sanitizedPrompt, effectiveHistory, modelName, injectedKey);
     const text = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "Response unavailable.";
 
-    // 3. Efficiency Layer (Cache Population)
-    if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
-    responseCache.set(sanitizedPrompt, text);
+    // 3. Efficiency Layer (Cache Population with Dynamic Write Ban)
+    if (!isDynamic) {
+      if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
+      responseCache.set(sanitizedPrompt, { text, timestamp: Date.now() });
+    }
 
     // 4. Cloud Layer (Background Archival - Delegated to CloudService)
     CloudService.persist(sanitizedPrompt, text, modelName);
