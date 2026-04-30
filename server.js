@@ -216,7 +216,8 @@ app.post('/api/chat', async (req, res) => {
   try {
     // 2. Generation Layer (Delegated to AIService)
     console.log(`[API] AI Request: Model=${modelName}, HistoryLength=${history.length}`);
-    const response = await AIService.generate(sanitizedPrompt, history, modelName, injectedKey);
+    const effectiveHistory = isDynamic ? [] : history;
+    const response = await AIService.generate(sanitizedPrompt, effectiveHistory, modelName, injectedKey);
     const text = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "Response unavailable.";
     
     // 3. Efficiency Layer (Cache Population)
