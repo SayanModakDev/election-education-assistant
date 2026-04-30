@@ -45,8 +45,10 @@ export const generateGeminiResponse = async (prompt, history = [], modelName = '
     throw new Error('Input is empty or invalid.');
   }
 
+  const isDynamic = sanitizedPrompt.match(/today|news|latest|live|now|current|date|time|update|status|winning|leading/i);
+
   // 1. Check persistent cache before making a network call
-  if (promptCache.has(sanitizedPrompt)) {
+  if (promptCache.has(sanitizedPrompt) && !isDynamic) {
     return promptCache.get(sanitizedPrompt);
   }
 
@@ -78,8 +80,10 @@ export const generateGeminiResponse = async (prompt, history = [], modelName = '
       const text = data.text;
 
       // 2. Update persistent cache
-      promptCache.set(sanitizedPrompt, text);
-      savePromptCache(promptCache);
+      if (!isDynamic) {
+        promptCache.set(sanitizedPrompt, text);
+        savePromptCache(promptCache);
+      }
 
       return text;
     } catch (error) {
