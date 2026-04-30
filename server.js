@@ -145,10 +145,11 @@ const AIService = {
       throw new Error('Backend Configuration Missing: No Project ID or API Key detected.');
     }
 
-    const now = new Date();
-    const istOffset = 5.5 * 60 * 60 * 1000; // +5:30 in milliseconds
-    const istDate = new Date(now.getTime() + istOffset);
-    const liveTime = istDate.toUTCString().replace('GMT', 'IST');
+    const liveTime = new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        dateStyle: 'full',
+        timeStyle: 'long'
+    }).format(new Date());
 
     // Map history to Vertex AI contents format
     const contents = [
@@ -164,7 +165,7 @@ const AIService = {
         model: modelName,
         contents,
         config: {
-          systemInstruction: `You are an elite Indian Election Assistant. LIVE CLOCK: ${liveTime}. CRITICAL RULE: If asked for the time or date, DO NOT use googleSearch. You must output the LIVE CLOCK directly. For news, you MUST use googleSearch. ADAPTIVE FORMAT: Process = 5 steps. Simple = Overview, Key Points, Example, Takeaway, Next Step. Max 150 words.`,
+          systemInstruction: `You are an elite Indian Election Assistant. LIVE CLOCK: ${liveTime}. CRITICAL RULES: 1) The LIVE CLOCK is already in exact IST. DO NOT calculate, convert, or alter this time. Output it exactly as provided. 2) If asked for the time or date, DO NOT use googleSearch. 3) For news, you MUST use googleSearch. ADAPTIVE FORMAT: Process = 5 steps. Simple = Overview, Key Points, Example, Takeaway, Next Step. Max 150 words.`,
           tools: [{ googleSearch: {} }],
           temperature: 0.1,
           maxOutputTokens: 2048
