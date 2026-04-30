@@ -53,7 +53,7 @@ const ChatInterface = React.memo(() => {
     setError('');
 
     try {
-      const responseText = await generateGeminiResponse(userMessage.content);
+      const responseText = await generateGeminiResponse(userMessage.content, messages);
       const aiMessage = { id: (Date.now() + 1).toString(), role: 'ai', content: responseText };
       setMessages(prev => [...prev, aiMessage]);
     } catch (err) {

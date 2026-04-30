@@ -135,7 +135,7 @@ const AIService = {
   /**
    * Executes AI generation with integrated Safety Fallbacks.
    */
-  generate: async (sanitizedPrompt, modelName, injectedKey) => {
+  generate: async (sanitizedPrompt, history = [], modelName, injectedKey) => {
     const effectiveKey = injectedKey || aiConfig.apiKey;
     const currentAi = (injectedKey) ? new GoogleGenAI({ apiKey: injectedKey }) : ai;
 
@@ -144,6 +144,15 @@ const AIService = {
     }
 
     const currentDateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'full', timeStyle: 'long' });
+
+    // Map history to Vertex AI contents format
+    const contents = [
+      ...history.map(m => ({
+        role: m.role === 'ai' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      })),
+      { role: "user", parts: [{ text: sanitizedPrompt }] }
+    ];
 
     try {
       const result = await currentAi.models.generateContent({
@@ -162,7 +171,7 @@ const AIService = {
         },
         tools: [{ googleSearchRetrieval: {} }],
         config: { temperature: 0.1, maxOutputTokens: 400 },
-        contents: [{ role: "user", parts: [{ text: sanitizedPrompt }] }],
+        contents,
       });
 
       // Handle Safety Filter Blocks (The "Perimeter" Check)
@@ -191,7 +200,7 @@ const AIService = {
  * ==========================================
  */
 app.post('/api/chat', async (req, res) => {
-  const { prompt, modelName = 'gemini-2.5-flash-lite', apiKey: injectedKey } = req.body;
+  const { prompt, history = [], modelName = 'gemini-2.5-flash-lite', apiKey: injectedKey } = req.body;
 
   // 1. Efficiency Layer (Input Validation & Cache)
   const sanitizedPrompt = sanitizeInput(prompt);
@@ -207,8 +216,8 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     // 2. Generation Layer (Delegated to AIService)
-    console.log(`[API] AI Request: Model=${modelName}`);
-    const response = await AIService.generate(sanitizedPrompt, modelName, injectedKey);
+    console.log(`[API] AI Request: Model=${modelName}, HistoryLength=${history.length}`);
+    const response = await AIService.generate(sanitizedPrompt, history, modelName, injectedKey);
     const text = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "Response unavailable.";
     
     // 3. Efficiency Layer (Cache Population)

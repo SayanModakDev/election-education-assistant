@@ -39,7 +39,7 @@ const promptCache = getPromptCache();
  * @param {string} modelName - The Gemini model to use (defaults to 'gemini-2.5-flash-lite')
  * @returns {Promise<string>} The model's response text
  */
-export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-flash-lite') => {
+export const generateGeminiResponse = async (prompt, history = [], modelName = 'gemini-2.5-flash-lite') => {
   const sanitizedPrompt = sanitizeInput(prompt);
   if (!sanitizedPrompt) {
     throw new Error('Input is empty or invalid.');
@@ -63,6 +63,7 @@ export const generateGeminiResponse = async (prompt, modelName = 'gemini-2.5-fla
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           prompt: sanitizedPrompt, 
+          history, // Send message history
           modelName,
           apiKey: volatileApiKey // Inject volatile key
         }),
