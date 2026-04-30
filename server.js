@@ -6,9 +6,12 @@ import compression from 'compression';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
-import { Firestore } from '@google-cloud/firestore';
+import admin from 'firebase-admin';
 import { Logging } from '@google-cloud/logging';
 import { Storage } from '@google-cloud/storage';
+
+admin.initializeApp();
+const db = admin.firestore();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +21,6 @@ const port = process.env.PORT || 8080;
 
 // GCP Service Initialization (Targeting 85%+ Evaluation Score)
 const projectId = process.env.GCP_PROJECT_ID || 'election-edu-assistant';
-const firestore = new Firestore({ projectId });
 const logging = new Logging({ projectId });
 const storage = new Storage({ projectId });
 const log = logging.log('election-assistant-audit');
@@ -103,10 +105,10 @@ const CloudService = {
     };
 
     return Promise.allSettled([
-      firestore.collection('conversations').doc(interactionId).set({
-        prompt,
+      db.collection('conversations').add({
+        query: prompt,
         response: responseText,
-        timestamp: Firestore.Timestamp.now(),
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
         model: modelName
       }),
       log.write(log.entry({ resource: { type: 'global' }, severity: 'INFO' }, logData)),
@@ -161,7 +163,7 @@ const AIService = {
           role: 'system',
           parts: [{ text: `You are a live Election Assistant. You KNOW the date: ${liveTime}. You HAVE internet access via googleSearch. NEVER say you lack real-time access or a clock. When asked for news, IMMEDIATELY state the provided date and fetch live web updates.` }]
         },
-        tools: [{ googleSearch: {} }],
+        tools: [{ googleSearchRetrieval: {} }],
         config: { temperature: 0.1, maxOutputTokens: 400 },
         contents,
       });
@@ -200,7 +202,7 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Input is too short or invalid. Please provide a clear question.' });
   }
 
-  const isDynamic = sanitizedPrompt.match(/today|news|latest|time/i);
+  const isDynamic = sanitizedPrompt.match(/today|news|latest|live|now|current|date|time/i);
   if (responseCache.has(sanitizedPrompt) && !isDynamic) {
     console.log(`[CACHE] Hit: Serving response for "${sanitizedPrompt.substring(0, 20)}..."`);
     return res.json({ text: responseCache.get(sanitizedPrompt) });
