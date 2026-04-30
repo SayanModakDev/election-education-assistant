@@ -142,3 +142,23 @@ vite.config.ts.timestamp-*
 # Runtime config placeholder
 public/env-config.js
 entrypoint.sh
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Project Specific Secure/Debug Files
+error_debug.log
+secrets/
+*.key.json
+service-account-key.json
+
