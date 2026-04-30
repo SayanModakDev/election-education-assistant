@@ -64,18 +64,18 @@ const ChatInterface = React.memo(() => {
   }, [inputValue, isLoading]);
 
   return (
-    <div className="flex flex-col h-[600px] w-full max-w-4xl mx-auto bg-white rounded-md shadow-md border border-slate-200 overflow-hidden my-8">
+      <div className="flex flex-col h-[500px] sm:h-[600px] w-full max-w-4xl mx-auto bg-white rounded-md shadow-md border border-slate-200 overflow-hidden my-4 sm:my-8">
       {/* Chat Header */}
-      <div className="bg-[#0b2b5e] text-white px-6 py-4 border-b-4 border-[#c02a2a] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-[#0b2b5e] text-white px-4 sm:px-6 py-3 sm:py-4 border-b-4 border-[#c02a2a] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
         <div>
-          <h2 className="text-xl font-bold">Election Assistant AI</h2>
-          <p className="text-sm text-blue-200">Ask questions about voting, registration, or your rights.</p>
+          <h2 className="text-lg sm:text-xl font-bold">Election Assistant AI</h2>
+          <p className="text-xs sm:text-sm text-blue-200">Ask questions about voting, registration, or your rights.</p>
         </div>
         <a 
           href="https://voters.eci.gov.in/" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md border border-white/30 transition-colors flex items-center gap-2 font-semibold"
+          className="text-[10px] sm:text-xs bg-white/10 hover:bg-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border border-white/30 transition-colors flex items-center gap-2 font-semibold"
           aria-label="Verify information on the official Election Commission of India portal (opens in new tab)"
         >
           <span>Verify with ECI Portal</span>
@@ -85,14 +85,14 @@ const ChatInterface = React.memo(() => {
 
       {/* Chat History Area */}
       <div 
-        className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50"
+        className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 bg-slate-50"
         aria-live="polite"
         aria-atomic="false"
         role="log"
       >
         {messages.length === 0 ? (
           <div className="text-center text-slate-500 mt-10">
-            <p>No messages yet. Start a conversation below!</p>
+            <p className="text-sm sm:text-base">No messages yet. Start a conversation below!</p>
           </div>
         ) : (
           messages.map((msg) => (
@@ -101,7 +101,7 @@ const ChatInterface = React.memo(() => {
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div 
-                className={`max-w-[80%] rounded-lg p-4 shadow-sm ${
+                className={`max-w-[85%] sm:max-w-[80%] rounded-lg p-3 sm:p-4 shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-[#0b2b5e] text-white rounded-br-none' 
                     : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
@@ -110,7 +110,7 @@ const ChatInterface = React.memo(() => {
                 <span className="sr-only">
                   {msg.role === 'user' ? 'You said: ' : 'Assistant said: '}
                 </span>
-                <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                <p className="text-sm sm:text-base whitespace-pre-wrap leading-relaxed">{msg.content}</p>
               </div>
             </div>
           ))
@@ -119,7 +119,7 @@ const ChatInterface = React.memo(() => {
         {/* Loading Indicator */}
         {isLoading && (
           <div className="flex justify-start" aria-live="polite">
-            <div className="bg-white border border-slate-200 text-slate-500 rounded-lg p-4 rounded-bl-none shadow-sm flex items-center gap-2">
+            <div className="bg-white border border-slate-200 text-slate-500 rounded-lg p-3 sm:p-4 rounded-bl-none shadow-sm flex items-center gap-2">
               <span className="sr-only">Assistant is typing...</span>
               <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
               <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -141,8 +141,8 @@ const ChatInterface = React.memo(() => {
       </div>
 
       {/* Input Form */}
-      <div className="p-4 bg-white border-t border-slate-200">
-        <form onSubmit={handleSubmit} className="flex gap-4">
+      <div className="p-3 sm:p-4 bg-white border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="flex gap-2 sm:gap-4">
           <label htmlFor="chat-input" className="sr-only">Type your question here</label>
           <input
             id="chat-input"
@@ -150,14 +150,14 @@ const ChatInterface = React.memo(() => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
-            placeholder="E.g., How do I register to vote?"
-            className="flex-1 border border-slate-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0b2b5e] focus:border-transparent disabled:bg-slate-100 disabled:text-slate-400 text-slate-800"
+            placeholder="Ask a question..."
+            className="flex-1 border border-slate-300 rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#0b2b5e] focus:border-transparent disabled:bg-slate-100 disabled:text-slate-400 text-slate-800"
             autoComplete="off"
           />
           <button
             type="submit"
             disabled={!inputValue.trim() || isLoading}
-            className="bg-[#c02a2a] hover:bg-[#a02222] text-white font-bold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-4 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="bg-[#c02a2a] hover:bg-[#a02222] text-white font-bold py-2 sm:py-3 px-4 sm:px-8 rounded-md text-sm sm:text-base transition-colors focus:outline-none focus:ring-4 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             aria-label="Send message"
           >
             Send
