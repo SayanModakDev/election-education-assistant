@@ -56,8 +56,7 @@ export const generateGeminiResponse = async (prompt, history = [], modelName = '
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      // 1. Retrieve volatile API key from browser storage
-      const volatileApiKey = sessionStorage.getItem('VITE_API_KEY');
+
 
       // 2. Direct call to our secure backend proxy with volatile key injection
       const response = await fetch('/api/chat', {
@@ -66,8 +65,7 @@ export const generateGeminiResponse = async (prompt, history = [], modelName = '
         body: JSON.stringify({ 
           prompt: sanitizedPrompt, 
           history, // Send message history
-          modelName,
-          apiKey: volatileApiKey // Inject volatile key
+          modelName
         }),
       });
 

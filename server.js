@@ -54,7 +54,7 @@ const aiConfig = hasValidProject
     location: process.env.GCP_LOCATION || "us-central1"
   }
   : {
-    apiKey: process.env.VITE_API_KEY
+    apiKey: process.env.GEMINI_API_KEY
   };
 
 const ai = new GoogleGenAI(aiConfig);

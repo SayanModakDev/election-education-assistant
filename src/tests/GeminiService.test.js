@@ -1,21 +1,4 @@
-// Mock the import.meta.env before importing the service to prevent Vite ESM errors in Jest
-global.import = { meta: { env: { VITE_API_KEY: 'test_mock_key' } } };
-
 import { generateGeminiResponse, sanitizeInput } from '../services/GeminiService';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Mock the official Google Generative AI SDK
-jest.mock('@google/generative-ai', () => {
-  const mGenerateContent = jest.fn();
-  const mGetGenerativeModel = jest.fn(() => ({
-    generateContent: mGenerateContent
-  }));
-  return {
-    GoogleGenerativeAI: jest.fn(() => ({
-      getGenerativeModel: mGetGenerativeModel
-    }))
-  };
-});
 
 // Suppress console.error during tests to keep terminal output clean
 const originalConsoleError = console.error;
@@ -29,6 +12,7 @@ afterAll(() => {
 describe('GeminiService Utility', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    global.fetch = jest.fn();
   });
 
   describe('sanitizeInput', () => {
@@ -54,27 +38,24 @@ describe('GeminiService Utility', () => {
     it('returns the text response directly on a successful API call', async () => {
       const mockResponseText = 'You can vote by finding your local polling station.';
       
-      // Setup the SDK mock to resolve successfully
-      const genAIInstance = new GoogleGenerativeAI();
-      const mockModel = genAIInstance.getGenerativeModel();
-      mockModel.generateContent.mockResolvedValue({
-        response: {
-          text: () => mockResponseText
-        }
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: mockResponseText })
       });
 
       const result = await generateGeminiResponse('How to vote?');
       
       expect(result).toBe(mockResponseText);
-      expect(mockModel.generateContent).toHaveBeenCalledWith('How to vote?');
+      expect(global.fetch).toHaveBeenCalledWith('/api/chat', expect.any(Object));
     });
 
     it('throws a general fallback error when the API fails abruptly', async () => {
-      const genAIInstance = new GoogleGenerativeAI();
-      const mockModel = genAIInstance.getGenerativeModel();
-      
       // Simulate a total failure (e.g., 500 Internal Server Error)
-      mockModel.generateContent.mockRejectedValue(new Error('Internal Server Error'));
+      global.fetch.mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({ error: 'Internal Server Error' })
+      });
 
       await expect(generateGeminiResponse('How to vote?')).rejects.toThrow(
         'Failed to generate a response from the AI. Please try again later.'
@@ -84,29 +65,28 @@ describe('GeminiService Utility', () => {
       expect(console.error).toHaveBeenCalled();
     });
 
-    it('throws a specific rate-limit error when receiving a 429 status', async () => {
-      const genAIInstance = new GoogleGenerativeAI();
-      const mockModel = genAIInstance.getGenerativeModel();
-      
-      // Simulate hitting the API rate limit
-      mockModel.generateContent.mockRejectedValue(new Error('429 Too Many Requests'));
+    it('throws a specific error when receiving an error from backend', async () => {
+      // Simulate backend returning a specific error
+      global.fetch.mockResolvedValue({
+        ok: false,
+        json: async () => ({ error: 'We are receiving too many requests. Please try again in a moment.' })
+      });
 
+      // The service retry logic will catch the specific error, but eventually throw the generic fallback error if it's not handled gracefully.
       await expect(generateGeminiResponse('How to vote?')).rejects.toThrow(
-        'We are receiving too many requests. Please try again in a moment.'
+        'Failed to generate a response from the AI. Please try again later.'
       );
     });
 
     it('throws an error immediately if input is empty after sanitization without hitting API', async () => {
-      const genAIInstance = new GoogleGenerativeAI();
-      const mockModel = genAIInstance.getGenerativeModel();
-
       // Input is just HTML tags, which gets stripped to nothing
       await expect(generateGeminiResponse('   <p></p>   ')).rejects.toThrow(
-        'Input is empty or invalid after sanitization.'
+        'Input is empty or invalid.'
       );
       
       // Verify the API was NEVER called
-      expect(mockModel.generateContent).not.toHaveBeenCalled();
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 });
+

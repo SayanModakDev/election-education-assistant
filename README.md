@@ -49,20 +49,20 @@ This project is configured for **Runtime Environment Injection**. This means you
 
 1. **In the Cloud Console**: Go to your Cloud Run service -> **Edit & Deploy New Revision**.
 2. **Variables**: Under the "Variables & Secrets" tab, add an Environment Variable:
-   - **Name**: `VITE_API_KEY`
+   - **Name**: `GEMINI_API_KEY`
    - **Value**: `your_actual_gemini_key`
 3. **Deploy**: Click Deploy. The app will automatically pick up the new key without a rebuild!
 
 ### Local Development
 To run locally, you can still use a `.env` file:
 ```env
-VITE_API_KEY=your_key_here
+GEMINI_API_KEY=your_key_here
 ```
 
 ### Local Docker Test
 To test the production behavior locally:
 ```bash
 docker build -t election-app .
-docker run -p 8080:8080 -e VITE_API_KEY=your_key_here election-app
+docker run -p 8080:8080 -e GEMINI_API_KEY=your_key_here election-app
 ```
 3. Open `http://localhost:8080` in your browser.
