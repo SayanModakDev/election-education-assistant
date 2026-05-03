@@ -11,11 +11,11 @@ import React, { useMemo } from 'react';
 
 /**
  * Renders a vertical, responsive timeline of election events.
- * Wrapped in React.memo to prevent unnecessary re-renders when parent state changes but events array reference remains the same.
  * 
- * @param {Object} props - Component props
- * @param {ElectionEvent[]} props.events - Array of election events to display
- * @returns {JSX.Element} The rendered timeline component
+ * @description Displays a sorted, accessible chronological timeline. Wrapped in React.memo to optimize re-renders. Local state is not used; sorting is memoized.
+ * @param {Object} props - Component props.
+ * @param {ElectionEvent[]} props.events - Array of election events to display.
+ * @returns {JSX.Element} The rendered timeline component.
  */
 const TimelineVisualizer = React.memo(({ events = [] }) => {
   // Optimize rendering by using useMemo to sort the events chronologically 

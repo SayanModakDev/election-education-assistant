@@ -1,10 +1,11 @@
 /**
  * A foundational layout component that provides a consistent 'Gov-Tech' aesthetic.
- * It includes an accessible header, main content area, and footer.
  * 
- * @param {Object} props - The component props
- * @param {React.ReactNode} props.children - The child components to render within the main content area
- * @returns {JSX.Element} The rendered Layout component
+ * @description Wraps the main application content, rendering a responsive header with navigation.
+ * @param {Object} props - The component props.
+ * @param {React.ReactNode} props.children - The child components to render within the main content area.
+ * @param {Function} props.setPage - State setter function to control application routing.
+ * @returns {JSX.Element} The rendered Layout component.
  */
 const Layout = ({ children, setPage }) => {
   return (

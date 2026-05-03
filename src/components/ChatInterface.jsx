@@ -10,9 +10,9 @@ import { generateGeminiResponse } from '../services/GeminiService';
 
 /**
  * Renders an accessible chat interface to interact with the Gemini AI.
- * Uses React.memo to prevent unnecessary re-renders from parent components.
  * 
- * @returns {JSX.Element} The rendered ChatInterface component
+ * @description Manages message state, input string state, loading boolean state, and error message state. Handles chat UI rendering and API interactions.
+ * @returns {JSX.Element} The rendered ChatInterface component.
  */
 const ChatInterface = React.memo(() => {
   const [messages, setMessages] = useState([]);

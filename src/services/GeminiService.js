@@ -1,8 +1,9 @@
 /**
  * Sanitizes user input before sending it to the model.
  * 
- * @param {string} input - The raw user input
- * @returns {string} The sanitized input string
+ * @description Strips HTML tags and enforces a maximum length of 2000 characters.
+ * @param {string} input - The raw user input.
+ * @returns {string} The sanitized input string.
  */
 export const sanitizeInput = (input) => {
   if (typeof input !== 'string') return '';
@@ -12,6 +13,12 @@ export const sanitizeInput = (input) => {
 
 // Persistence-aware cache to avoid redundant API calls
 const PROMPT_CACHE_KEY = 'gemini_prompt_cache';
+/**
+ * Retrieves the prompt cache from session storage.
+ * 
+ * @description Parses and returns the Map from sessionStorage, or an empty Map on failure.
+ * @returns {Map<string, string>} The cached prompts.
+ */
 const getPromptCache = () => {
   try {
     const cached = sessionStorage.getItem(PROMPT_CACHE_KEY);
@@ -21,6 +28,13 @@ const getPromptCache = () => {
   }
 };
 
+/**
+ * Saves the prompt cache to session storage.
+ * 
+ * @description Serializes the Map and stores it in sessionStorage, failing silently if quota is exceeded.
+ * @param {Map<string, string>} cache - The prompt cache to save.
+ * @returns {void}
+ */
 const savePromptCache = (cache) => {
   try {
     sessionStorage.setItem(PROMPT_CACHE_KEY, JSON.stringify(Array.from(cache.entries())));
@@ -33,11 +47,13 @@ const promptCache = getPromptCache();
 
 /**
  * Sends a sanitized prompt to the backend proxy and retrieves the AI response.
- * Implements persistent caching and robust error handling.
  * 
- * @param {string} prompt - The user's query
- * @param {string} modelName - The Gemini model to use (defaults to 'gemini-2.5-flash-lite')
- * @returns {Promise<string>} The model's response text
+ * @description Implements persistent caching, dynamic query bypassing, and robust exponential backoff retry logic.
+ * @param {string} prompt - The user's query.
+ * @param {Array<Object>} [history=[]] - The conversation history array.
+ * @param {string} [modelName='gemini-2.5-flash-lite'] - The Gemini model to use.
+ * @returns {Promise<string>} The model's response text.
+ * @throws {Error} If input is invalid, or if all API retry attempts fail.
  */
 export const generateGeminiResponse = async (prompt, history = [], modelName = 'gemini-2.5-flash-lite') => {
   const sanitizedPrompt = sanitizeInput(prompt);

@@ -3,7 +3,10 @@ import React from 'react';
 /**
  * Privacy Policy component explaining data usage and collection.
  * 
- * @returns {JSX.Element}
+ * @description Renders the static privacy policy content and provides a navigation button to return to the home dashboard.
+ * @param {Object} props - The component props.
+ * @param {Function} props.setPage - State setter function to navigate back to the 'home' page.
+ * @returns {JSX.Element} The rendered PrivacyPolicy component.
  */
 const PrivacyPolicy = ({ setPage }) => {
   return (

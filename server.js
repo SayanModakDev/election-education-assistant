@@ -65,7 +65,11 @@ console.log(`[BOOT] Cloud Integrations Active: Firestore, Logging, Storage`);
 const responseCache = new Map();
 
 /**
- * Sanitizes and validates user input (Advanced Efficiency Shield)
+ * Sanitizes and validates user input (Advanced Efficiency Shield).
+ * 
+ * @description Removes HTML tags, checks for injection patterns, and enforces length constraints.
+ * @param {string} input - The raw user input string to be sanitized.
+ * @returns {string|null} The sanitized input string, or null if validation fails.
  */
 const sanitizeInput = (input) => {
   if (typeof input !== 'string') return '';
@@ -90,6 +94,12 @@ const sanitizeInput = (input) => {
 const CloudService = {
   /**
    * Persists interaction data across Firestore, Cloud Logging, and GCS in parallel.
+   * 
+   * @description Writes the interaction to Firestore, logs it via Google Cloud Logging, and saves a JSON audit trail to GCS. Returns an array of promise settlement results.
+   * @param {string} prompt - The sanitized user query.
+   * @param {string} responseText - The generated AI response text.
+   * @param {string} modelName - The identifier of the AI model used.
+   * @returns {Promise<Array<PromiseSettledResult<any>>>} An array containing the outcome of each cloud operation.
    */
   persist: async (prompt, responseText, modelName) => {
     const timestamp = new Date().toISOString();
@@ -116,6 +126,11 @@ const CloudService = {
 
   /**
    * Logs diagnostic errors to a local high-resolution debug file.
+   * 
+   * @description Appends the error details and stack trace to a local error_debug.log file.
+   * @param {Error} error - The caught error object.
+   * @param {string} details - Additional contextual details about the error.
+   * @returns {void}
    */
   logError: (error, details) => {
     const logEntry = `[${new Date().toISOString()}] ERROR: ${details}\nSTACK: ${error.stack}\n\n`;
@@ -131,6 +146,14 @@ const CloudService = {
 const AIService = {
   /**
    * Executes AI generation with integrated Safety Fallbacks.
+   * 
+   * @description Uses the configured Google GenAI instance to generate a response based on the sanitized prompt and chat history, applying system instructions and safety fallbacks.
+   * @param {string} sanitizedPrompt - The sanitized user query.
+   * @param {Array<Object>} [history=[]] - The conversation history array.
+   * @param {string} modelName - The identifier of the AI model to use.
+   * @param {string} [injectedKey] - Optional API key (legacy/fallback).
+   * @returns {Promise<Object>} An object containing the generated response text.
+   * @throws {Error} If backend configuration is missing or an unhandled AI error occurs.
    */
   generate: async (sanitizedPrompt, history = [], modelName, injectedKey) => {
     const effectiveKey = injectedKey || aiConfig.apiKey;
@@ -191,6 +214,15 @@ const AIService = {
  * ==========================================
  * REQUEST HANDLERS (Express Orchestration)
  * ==========================================
+ */
+
+/**
+ * Handles incoming chat generation requests.
+ * 
+ * @description Processes the user prompt, validates it, checks the cache, invokes the AI generation service, persists the interaction, and returns the AI response.
+ * @param {express.Request} req - The Express request object containing prompt, history, and modelName in the body.
+ * @param {express.Response} res - The Express response object used to return the JSON text or error.
+ * @returns {Promise<void>}
  */
 app.post('/api/chat', async (req, res) => {
   const { prompt, history = [], modelName = 'gemini-2.5-flash-lite', apiKey: injectedKey } = req.body;

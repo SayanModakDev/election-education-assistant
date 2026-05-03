@@ -46,9 +46,9 @@ const sampleElectionEvents = [
 
 /**
  * The root application component.
- * It coordinates the main layout and basic state-based routing.
  * 
- * @returns {JSX.Element} The rendered App component
+ * @description Coordinates the main layout and basic state-based routing. Maintains the current page state.
+ * @returns {JSX.Element} The rendered App component.
  */
 function App() {
   const [currentPage, setCurrentPage] = useState('home');

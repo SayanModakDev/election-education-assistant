@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 /**
  * Contact Us component with a functional form state.
  * 
- * @returns {JSX.Element}
+ * @description Renders a contact form, handles local submission state, and displays a success message upon submission.
+ * @param {Object} props - The component props.
+ * @param {Function} props.setPage - State setter function to navigate back to the 'home' page.
+ * @returns {JSX.Element} The rendered ContactUs component.
  */
 const ContactUs = ({ setPage }) => {
   const [submitted, setSubmitted] = useState(false);

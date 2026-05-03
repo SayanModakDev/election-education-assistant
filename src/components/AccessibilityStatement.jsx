@@ -3,7 +3,10 @@ import React from 'react';
 /**
  * Accessibility Statement component detailing WCAG conformance.
  * 
- * @returns {JSX.Element}
+ * @description Renders the static accessibility statement content and provides a navigation button to return to the home dashboard.
+ * @param {Object} props - The component props.
+ * @param {Function} props.setPage - State setter function to navigate back to the 'home' page.
+ * @returns {JSX.Element} The rendered AccessibilityStatement component.
  */
 const AccessibilityStatement = ({ setPage }) => {
   return (
