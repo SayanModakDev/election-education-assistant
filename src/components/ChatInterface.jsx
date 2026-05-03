@@ -61,7 +61,7 @@ const ChatInterface = React.memo(() => {
     } finally {
       setIsLoading(false);
     }
-  }, [inputValue, isLoading]);
+  }, [inputValue, isLoading, messages]);
 
   return (
       <div className="flex flex-col h-[500px] sm:h-[600px] w-full max-w-4xl mx-auto bg-white rounded-md shadow-md border border-slate-200 overflow-hidden my-4 sm:my-8">
