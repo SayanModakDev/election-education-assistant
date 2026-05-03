@@ -14,19 +14,23 @@ jest.unstable_mockModule('@google/genai', () => ({
 }));
 
 // 2. Mock Cloud Services (ESM Style)
-jest.unstable_mockModule('@google-cloud/firestore', () => {
-  const mockFirestore = jest.fn().mockImplementation(() => ({
-    collection: jest.fn().mockReturnThis(),
-    doc: jest.fn().mockReturnThis(),
-    set: jest.fn().mockResolvedValue(true)
-  }));
-  
-  // Attach static properties like Timestamp for realism
-  mockFirestore.Timestamp = {
-    now: jest.fn().mockReturnValue('mocked-timestamp')
+export const mockFirestoreAdd = jest.fn().mockResolvedValue(true);
+export const mockStorageSave = jest.fn().mockResolvedValue(true);
+
+jest.unstable_mockModule('firebase-admin', () => {
+  return {
+    default: {
+      initializeApp: jest.fn(),
+      firestore: Object.assign(jest.fn().mockReturnValue({
+        collection: jest.fn().mockReturnThis(),
+        add: mockFirestoreAdd
+      }), {
+        FieldValue: {
+          serverTimestamp: jest.fn().mockReturnValue('mocked-server-timestamp')
+        }
+      })
+    }
   };
-  
-  return { Firestore: mockFirestore };
 });
 
 jest.unstable_mockModule('@google-cloud/logging', () => ({
@@ -41,7 +45,7 @@ jest.unstable_mockModule('@google-cloud/storage', () => ({
   Storage: jest.fn().mockImplementation(() => ({
     bucket: jest.fn().mockReturnThis(),
     file: jest.fn().mockReturnThis(),
-    save: jest.fn().mockResolvedValue(true)
+    save: mockStorageSave
   }))
 }));
 
@@ -85,6 +89,40 @@ describe('Election Assistant API - High-Impact Test Suite', () => {
       .send({ prompt: 'Explain the 5-step registration process.' });
     
     expect(res.statusCode).toEqual(200);
+  });
+
+  describe('CloudService.persist (Persistence Layer)', () => {
+    beforeEach(() => {
+      mockFirestoreAdd.mockClear();
+      mockStorageSave.mockClear();
+    });
+
+    test('5. Resolves successfully when database accepts write', async () => {
+      mockFirestoreAdd.mockResolvedValueOnce(true);
+      
+      const res = await request(app)
+        .post('/api/chat')
+        .send({ prompt: 'Test successful persist' });
+      
+      expect(res.statusCode).toEqual(200);
+      expect(mockFirestoreAdd).toHaveBeenCalled();
+      expect(mockStorageSave).toHaveBeenCalled();
+    });
+
+    test('6. Gracefully handles rejected Database promise without crashing', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
+      mockFirestoreAdd.mockRejectedValueOnce(new Error('Simulated Firestore Failure'));
+      
+      const res = await request(app)
+        .post('/api/chat')
+        .send({ prompt: 'Test graceful failure' });
+      
+      expect(res.statusCode).toEqual(200);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[CLOUD ERROR TASK 0]'), expect.any(Error));
+      
+      consoleSpy.mockRestore();
+    });
   });
 
 });
